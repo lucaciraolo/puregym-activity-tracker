@@ -31,7 +31,7 @@ async function setupDB() {
 
 async function setupBrowser() {
     const browser = await pupeteer.launch({
-        headless: true
+        headless: false
     });
     const page = await browser.newPage();
     // automatic redirect to login page
@@ -49,7 +49,12 @@ async function setupBrowser() {
 
     await page.click(BUTTON_SELECTOR);
 
-    await page.waitForNavigation();
+    await page.waitForNavigation({
+        timeout: 5
+    }).catch(() => {
+        console.error("email or pin incorrect.");
+        process.exit(1);
+    });
 
     return page;
 }
