@@ -1,32 +1,37 @@
 import dotenv from "dotenv";
 import pupeteer from "puppeteer";
-import sqlite3 from "sqlite3";
+import mongoose from "mongoose";
 
 dotenv.config();
 
-sqlite3.verbose();
+const activitySchema = new mongoose.Schema({
+    timestamp: Date,
+    people: Number
+}, { collection: 'activity'});
+
+const Activity = mongoose.model('Activity', activitySchema);
 
 async function main() {
     const db = await setupDB();
     const page = await setupBrowser();
-
-    db.run('CREATE TABLE IF NOT EXISTS activity(timestamp TEXT, people INT)');
-
+    // await migrateDatabase();
+    
     const handle = setInterval(async () => {
-        const people = await getNumberOfPeople(page);
-        db.run(`INSERT INTO activity(timestamp, people) VALUES (?, ?)`, [Date.now(), people]);
-        console.log(Date.now(), people);
+        const people = await getNumberOfPeople(page).catch(err => console.error(err));
+        // db.run(`INSERT INTO activity(timestamp, people) VALUES (?, ?)`, [Date.now(), people]);
+        const activity = new Activity({
+            timestamp: Date.now(),
+            people
+        });
+        await activity.save().catch(err => console.error(err));
+        console.log(activity);
     }, 60000);
 }
 
 async function setupDB() {
-    return new sqlite3.Database('./db/PureGymActivityTracker.db', (err) => {
-        if (err) {
-            console.error(err.message);
-        } else {
-            console.log('Connected to the database.')
-        }
-    });
+    await mongoose.connect(process.env.MONGO_URI, {useNewUrlParser: true}).catch((err) => console.error("error conencting to database", err));
+    console.log('Connected to database!');
+    return mongoose.connection;
 }
 
 async function setupBrowser() {
@@ -62,6 +67,19 @@ async function getNumberOfPeople(page) {
     return numberOfPeople;
 }
 
-// async function getNumberOfPeople() 
+// async function migrateDatabase() {
+//     let db = await new sqlite3.Database('./db/PureGymActivityTracker.db');
+//     console.log('old db connected');
+//     const SQL = `SELECT timestamp, people FROM activity`;
+//     let counter = 0;
+//     db.each(SQL, [],  (err, row) => {
+//         const activity = new Activity({
+//             timestamp: Math.round(parseFloat(row.timestamp)),
+//             people: row.people
+//         });
+//         activity.save().catch((err) => console.error(err));
+//     });
+//     // console.log(counter, 'rows found');
+// }
 
 main();

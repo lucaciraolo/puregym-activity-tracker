@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "npx nodemon --exec babel-node src/index.js",
+    "permastart": "babel-node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -18,7 +19,7 @@
   },
   "dependencies": {
     "dotenv": "^6.2.0",
-    "puppeteer": "^1.11.0",
-    "sqlite3": "^4.0.6"
+    "mongoose": "^5.4.4",
+    "puppeteer": "^1.11.0"
   }
 }
