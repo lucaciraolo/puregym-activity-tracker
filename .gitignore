@@ -1,3 +1,4 @@
 node_modules/
 .env
-db/
+combined.log
+error.log

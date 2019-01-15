@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import pupeteer from 'puppeteer';
 import mongoose from 'mongoose';
+import logger from './logger';
 
 dotenv.config();
 
@@ -12,8 +13,8 @@ const activitySchema = new mongoose.Schema({
 const Activity = mongoose.model('Activity', activitySchema);
 
 async function setupDB() {
-  await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true }).catch(err => console.error('error conencting to database', err));
-  console.log('Connected to database!');
+  await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true }).catch(err => logger.error('error conencting to database', err));
+  logger.info('Connected to database!');
   return mongoose.connection;
 }
 
@@ -49,7 +50,9 @@ async function getNumberOfPeople(page) {
   + ' > div > div > div > div:nth-child(1) > div > p.para.para--small.margin-none > span';
 
   const peopleString = await page.evaluate(
-    selector => document.querySelector(selector).innerText, PEOPLE_SELECTOR);
+    selector => document.querySelector(selector).innerText,
+    PEOPLE_SELECTOR,
+  );
   const numberOfPeople = parseInt(peopleString.split(' ')[0], 10);
   return numberOfPeople;
 }
@@ -57,17 +60,17 @@ async function getNumberOfPeople(page) {
 async function main() {
   await setupDB();
   const page = await setupBrowser();
-  console.log('set up browser');
+  logger.info('set up browser');
 
   setInterval(async () => {
-    const people = await getNumberOfPeople(page).catch(err => console.error(err));
+    const people = await getNumberOfPeople(page).catch(err => logger.error(err));
 
     const activity = new Activity({
       timestamp: Date.now(),
       people,
     });
-    await activity.save().catch(err => console.error(err));
-    console.log(activity);
+    await activity.save().catch(err => logger.error(err));
+    logger.info(`there were ${activity.people} people at the gym at ${activity.timestamp}`);
   }, 60000);
 }
 

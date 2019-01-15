@@ -6,7 +6,8 @@
         {
             "type": "npm",
             "script": "permastart",
-            "problemMatcher": []
+            "problemMatcher": [],
+            
         }
     ]
 }
