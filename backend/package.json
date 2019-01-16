@@ -4,7 +4,7 @@
   "description": "A simple nodejs app to periodically scrape the puregym member dashboard and record the number of members present.",
   "main": "src/index.js",
   "scripts": {
-    "start": "npx nodemon --exec babel-node src/index.js",
+    "dev": "npx nodemon --exec babel-node src/index.js",
     "permastart": "babel-node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

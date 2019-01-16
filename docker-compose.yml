@@ -1,0 +1,9 @@
+version: "3"
+services:
+  backend:
+      build:
+        dockerfile: Dockerfile
+        context: ./backend
+      command: npm run dev
+      volumes:
+        - "./backend:/usr/src/app"
